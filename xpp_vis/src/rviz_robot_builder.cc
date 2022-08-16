@@ -116,7 +116,8 @@ RvizRobotBuilder::CreateEEPositions (const EEPos& ee_pos,
   MarkerVec vec;
 
   for (auto ee : ee_pos.GetEEsOrdered()) {
-    Marker m = CreateSphere(ee_pos.at(ee), 0.04);
+    //Marker m = CreateSphere(ee_pos.at(ee), 0.04);
+    Marker m = CreateSphere(ee_pos.at(ee), 0.02);
     m.ns     = "endeffector_pos";
     m.color  = color.blue;
 
@@ -131,8 +132,9 @@ RvizRobotBuilder::CreateGravityForce (const Vector3d& base_pos) const
 {
   double g = 9.81;
   double mass = params_msg_.base_mass;
-  Marker m = CreateForceArrow(Eigen::Vector3d(0.0, 0.0, -mass*g), base_pos);
-  m.color  = color.red;
+  Marker m = CreateForceArrow(Eigen::Vector3d(0.0, 0.0, -mass*g), base_pos, 200);
+  //m.color  = color.red;
+  m.color = color.green;
   m.ns     = "gravity_force";
 
   return m;
@@ -149,7 +151,7 @@ RvizRobotBuilder::CreateEEForces (const EEForces& ee_forces,
     Vector3d p = ee_pos.at(ee);
     Vector3d f = ee_forces.at(ee);
 
-    Marker m  = CreateForceArrow(f, p);
+    Marker m  = CreateForceArrow(f, p, 100);
     m.color   = color.red;
     m.color.a = f.norm() > 0.1 ? 1.0 : 0.0;
     m.ns      = "ee_force";
@@ -218,13 +220,14 @@ RvizRobotBuilder::CreateBasePose (const Vector3d& pos,
                                   const ContactState& contact_state) const
 {
   Vector3d edge_length(0.1, 0.05, 0.02);
-  Marker m = CreateBox(pos, ori, 3*edge_length);
+  //Marker m = CreateBox(pos, ori, 3*edge_length);
+  Marker m = CreateSphere(pos);
 
   m.color = color.black;
-  m.color.a = 0.8;
-  for (auto ee : contact_state.GetEEsOrdered())
-    if (contact_state.at(ee))
-      m.color = color.black;
+//  m.color.a = 0.8;
+//  for (auto ee : contact_state.GetEEsOrdered())
+//    if (contact_state.at(ee))
+//      m.color = color.black;
 
   m.ns = "base_pose";
 
@@ -337,16 +340,16 @@ RvizRobotBuilder::CreateSphere (const Vector3d& pos, double diameter) const
 
 RvizRobotBuilder::Marker
 RvizRobotBuilder::CreateForceArrow (const Vector3d& force,
-                                    const Vector3d& ee_pos) const
+                                    const Vector3d& ee_pos,
+                                    const double force_scale) const
 {
   Marker m;
   m.type = Marker::ARROW;
 
   m.scale.x = 0.01; // shaft diameter
   m.scale.y = 0.02; // arrow-head diameter
-  m.scale.z = 0.06; // arrow-head length
+  m.scale.z = 0.04; // arrow-head length
 
-  double force_scale = 800;
   Vector3d p_start = ee_pos - force/force_scale;
   auto start = Convert::ToRos<geometry_msgs::Point>(p_start);
   m.points.push_back(start);

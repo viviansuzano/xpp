@@ -128,7 +128,8 @@ private:
                                const Vector3d& terrain_normal,
                                double friction_coeff) const;
   Marker    CreateForceArrow(const Vector3d& f,
-                             const Vector3d& pos) const;
+                             const Vector3d& pos,
+                             const double force_scale = 800) const;
   Marker    CreateSphere(const Vector3d& pos,
                          double diameter = 0.03) const;
   Marker    CreateBox(const Vector3d& pos, Eigen::Quaterniond ori,
